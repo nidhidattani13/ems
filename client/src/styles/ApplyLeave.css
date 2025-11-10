@@ -1,0 +1,34 @@
+/* Apply Leave specific styles */
+
+.apply-leave-wrap { display: grid; gap: 20px; }
+
+/* Form grid: column format, clean spacing */
+.al-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* two columns on desktop */
+  gap: 16px;
+}
+
+/* Make specific items share a row nicely */
+.al-form-grid .half-col { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px; }
+
+/* Full-width row for textarea etc */
+.full-span { grid-column: 1 / -1; }
+
+/* Labels and inputs */
+.dep-field { display: flex; flex-direction: column; gap: 8px; }
+.dep-field label { font-size: 12px; font-weight: 600; color: #374151; }
+.dep-input { padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; background: #fff; }
+.dep-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+
+/* Hints */
+.al-hint { margin-top: 8px; color: #374151; }
+.al-hint.error { color: #b91c1c; }
+
+/* Modal sizing override for this form */
+.modal { max-width: 900px; }
+
+/* Responsive */
+@media (max-width: 980px) {
+  .al-form-grid { grid-template-columns: 1fr; }
+}
