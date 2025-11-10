@@ -26,6 +26,10 @@ const Attendance = sequelize.define("Attendance", {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  location: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   sign_out_time: {
     type: DataTypes.DATE,
     allowNull: true,

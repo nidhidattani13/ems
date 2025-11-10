@@ -8,7 +8,7 @@ const { Op } = require("sequelize");
 const attendanceController = {
   createAttendance: async (req, res) => {
     try {
-      const { employee_id, date, sign_in_time, sign_out_time, status } = req.body;
+      const { employee_id, date, sign_in_time, sign_out_time, status, location } = req.body;
 
       if (!employee_id || !date) {
         return res.status(400).json({
@@ -34,6 +34,7 @@ const attendanceController = {
         sign_in_time: formattedSignIn,
         sign_out_time: formattedSignOut,
         status,
+        location: location || null,
       });
 
       res.status(201).json({
@@ -49,6 +50,7 @@ const attendanceController = {
 
   signInToday: async (req, res) => {
     try {
+      const { location } = req.body || {};
       const userId = req.user?.id;
       if (!userId) return res.status(401).json({ status: false, message: 'Unauthorized' });
 
@@ -81,6 +83,7 @@ const attendanceController = {
           date: todayStr,
           sign_in_time: now,
           status: true,
+          location: location || null,
         };
         if (!isNaN(workEnd) && now >= workEnd) {
           createPayload.sign_out_time = workEnd;
@@ -100,7 +103,10 @@ const attendanceController = {
         return res.status(200).json({ status: true, message: 'Already signed in', data: fresh });
       }
 
-      await record.update({ sign_in_time: now, status: true });
+  // Update sign-in time and optionally update location if provided
+  const updatePayload = { sign_in_time: now, status: true };
+  if (location) updatePayload.location = location;
+  await record.update(updatePayload);
       // If signing in after 18:00, also set sign_out_time to 18:00
       const workEnd = new Date(`${todayStr}T18:00:00`);
       if (!record.sign_out_time && !isNaN(workEnd) && now >= workEnd) {
@@ -115,6 +121,7 @@ const attendanceController = {
 
   signOutToday: async (req, res) => {
     try {
+      const { location } = req.body || {};
       const userId = req.user?.id;
       if (!userId) return res.status(401).json({ status: false, message: 'Unauthorized' });
 
@@ -137,7 +144,10 @@ const attendanceController = {
       // Cap sign-out time to 18:00 local for fixed schedule
       const workEnd = new Date(`${todayStr}T18:00:00`);
       const signOutAt = (!isNaN(workEnd) && now >= workEnd) ? workEnd : now;
-      await record.update({ sign_out_time: signOutAt });
+  // Update sign-out time and optionally record/override location if provided
+  const updatePayload = { sign_out_time: signOutAt };
+  if (location) updatePayload.location = location;
+  await record.update(updatePayload);
       const fresh = await Attendance.findByPk(record.id);
       return res.status(200).json({ status: true, message: 'Signed out', data: fresh });
     } catch (err) {
@@ -215,7 +225,7 @@ const attendanceController = {
   updateAttendance: async (req, res) => {
     try {
       const { id } = req.params;
-      const { employee_id, date, sign_in_time, sign_out_time, status } = req.body;
+      const { employee_id, date, sign_in_time, sign_out_time, status, location } = req.body;
 
       const record = await Attendance.findByPk(id);
       if (!record) {
@@ -234,6 +244,7 @@ const attendanceController = {
         sign_in_time: formattedSignIn,
         sign_out_time: formattedSignOut,
         status,
+        location: location || record.location,
       });
 
       res.status(200).json({
@@ -311,6 +322,7 @@ const attendanceController = {
 
   markToday: async (req, res) => {
     try {
+      const { location } = req.body || {};
       const userId = req.user?.id;
       if (!userId) return res.status(401).json({ status: false, message: 'Unauthorized' });
 
@@ -331,6 +343,7 @@ const attendanceController = {
         date: todayStr,
         sign_in_time: now,
         status: true,
+        location: location || null,
       });
       return res.status(201).json({ status: true, message: 'Attendance marked', data: record });
     } catch (err) {

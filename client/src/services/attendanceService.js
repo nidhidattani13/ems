@@ -1,12 +1,15 @@
 import api from './api';
 
 export const attendanceService = {
-  signIn: async () => {
-    const res = await api.post('/attendance/sign-in');
+  signIn: async (location) => {
+    // location: optional string with coords or description
+    const payload = location ? { location } : {};
+    const res = await api.post('/attendance/sign-in', payload);
     return res.data?.data || null;  // Return null instead of res.data
   },
-  signOut: async () => {
-    const res = await api.post('/attendance/sign-out');
+  signOut: async (location) => {
+    const payload = location ? { location } : {};
+    const res = await api.post('/attendance/sign-out', payload);
     return res.data?.data || null;  // Return null instead of res.data
   },
   // Fix others too

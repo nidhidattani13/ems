@@ -171,7 +171,7 @@ const EmployeeAttendance = () => {
   }, [today?.sign_in_time, today?.sign_out_time]);
 
   const signIn = async () => {
-    try {
+      try {
       setSaving(true);
       setError("");
       setSuccess("");
@@ -219,7 +219,8 @@ const EmployeeAttendance = () => {
         return;
       }
 
-  const res = await attendanceService.signIn();
+  // Pass location to attendance service so server can persist it
+  const res = await attendanceService.signIn(locationStr);
 
       // Validate the response has the correct structure
       const rec = res?.id ? res : null;
@@ -269,7 +270,27 @@ const EmployeeAttendance = () => {
       setError("");
       setSuccess("");
 
-      const res = await attendanceService.signOut();
+      // Try to capture current location for sign-out as well (optional)
+      let locationStr = null;
+      try {
+        const getPosition = () => new Promise((resolve) => {
+          if (!navigator.geolocation) return resolve(null);
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(pos),
+            (err) => resolve(null),
+            { enableHighAccuracy: true, timeout: 5000 }
+          );
+        });
+        const pos = await getPosition();
+        if (pos && pos.coords) {
+          const { latitude, longitude } = pos.coords;
+          locationStr = `lat:${latitude.toFixed(6)}, lon:${longitude.toFixed(6)}`;
+        }
+      } catch (e) {
+        // ignore geo errors for sign-out
+      }
+
+      const res = await attendanceService.signOut(locationStr);
 
       // Validate the response has the correct structure
       const rec = res?.id ? res : null;
@@ -428,6 +449,7 @@ const EmployeeAttendance = () => {
                 <th>Date</th>
                 <th>Sign In</th>
                 <th>Sign Out</th>
+                <th>Location</th>
                 <th>Duration</th>
                 <th>Status</th>
               </tr>
@@ -446,6 +468,9 @@ const EmployeeAttendance = () => {
                     <td>{formatDateDMY(row.date || row.attendance_date)}</td>
                     <td>{formatTime(row.sign_in_time)}</td>
                     <td>{formatTime(row.sign_out_time)}</td>
+                    <td title={row.location || ''}>
+                      {row.location ? String(row.location).slice(0, 40) : "-"}
+                    </td>
                     <td>
                       {formatDuration(row.sign_in_time, row.sign_out_time)}
                     </td>
