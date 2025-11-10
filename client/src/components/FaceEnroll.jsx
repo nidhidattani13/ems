@@ -194,20 +194,20 @@ const FaceEnroll = ({ employeeId, name }) => {
             <button className="btn" onClick={() => captureMany(12)} disabled={capturing}>
               {capturing ? 'Capturing...' : 'Start Enrollment (12 images)'}
             </button>
-            <button className="btn" onClick={refreshEnrolled} style={{ marginLeft: 8 }}>
+            {/* <button className="btn" onClick={refreshEnrolled} style={{ marginLeft: 8 }}>
               Refresh Enrolled
-            </button>
-            <button className="btn" onClick={testRecognition} style={{ marginLeft: 8 }}>
+            </button> */}
+            {/* <button className="btn" onClick={testRecognition} style={{ marginLeft: 8 }}>
               Test Recognition
-            </button>
-            <button className="btn" onClick={startCamera} style={{ marginLeft: 8 }}>
+            </button> */}
+            {/* <button className="btn" onClick={startCamera} style={{ marginLeft: 8 }}>
               Open Camera
-            </button>
-            <button className="btn danger" onClick={stopCamera} style={{ marginLeft: 8 }}>
+            </button> */}
+            {/* <button className="btn danger" onClick={stopCamera} style={{ marginLeft: 8 }}>
               Close Camera
-            </button>
+            </button> */}
           </div>
-          <div style={{ marginTop: 8 }}>Captured: {count}</div>
+          {/* <div style={{ marginTop: 8 }}>Captured: {count}</div>
           {enrolledList && enrolledList.length > 0 && (
             <div style={{ marginTop: 8 }}>
               <strong>Enrolled:</strong>
@@ -217,7 +217,7 @@ const FaceEnroll = ({ employeeId, name }) => {
                 ))}
               </ul>
             </div>
-          )}
+          )} */}
 
           {lastRecognition && (
             <div style={{ marginTop: 8 }}>
@@ -227,7 +227,7 @@ const FaceEnroll = ({ employeeId, name }) => {
             </div>
           )}
           <div style={{ marginTop: 6, color: '#666' }}>
-            Note: Ensure models are available in public/models (see docs). Good lighting and frontal face yield best results.
+            Note: Good lighting and frontal face will have best results.
           </div>
         </>
       )}

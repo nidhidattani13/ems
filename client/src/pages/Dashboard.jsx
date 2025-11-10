@@ -319,7 +319,6 @@ const Dashboard = () => {
                   <div className="pro-mini"><span className="pro-li-title">Sign Out</span><span className="pro-li-sub">{myToday?.sign_out_time || '—'}</span></div>
                 </div>
                 <div style={{ marginTop: 12 }}>
-                  <h4 style={{ margin: '6px 0' }}>Face Enrollment</h4>
                   <FaceEnroll employeeId={user?.id} name={user?.name} />
                 </div>
               </div>
