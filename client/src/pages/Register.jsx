@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import '../styles/Auth.css';
+import FaceEnroll from '../components/FaceEnroll';
 
 const Register = () => {
   const { register } = useAuth();
@@ -23,6 +24,9 @@ const Register = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showFaceEnroll, setShowFaceEnroll] = useState(false);
+  const [faceEnrollComplete, setFaceEnrollComplete] = useState(false);
+  const [registeredEmployeeId, setRegisteredEmployeeId] = useState(null);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const nameRegex = /^[A-Za-z .]{2,}$/; // alphabets, space, dot
   const pwdRegex = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{7,}$/; // >6, number, special
@@ -124,23 +128,20 @@ const Register = () => {
         reporting_head_id: dataToSend.reporting_head_id || null,
       };
 
-      await register(sanitizedData);
-      setSuccess('Registration successful! Redirecting to login...');
-
-      setFormData({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        role: 'employee',
-        department_id: '',
-        designation_id: '',
-        reporting_head_id: '',
-      });
-
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 2000);
+      const res = await register(sanitizedData);
+      
+      // Check if registration was successful and user has an ID
+      // res structure: { status, message, data: user }
+      if (res?.data?.id) {
+        setRegisteredEmployeeId(res.data.id);
+        setShowFaceEnroll(true);
+        setSuccess('Registration successful! Please enroll your face.');
+      } else {
+        setSuccess('Registration successful! Redirecting to login...');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
@@ -148,85 +149,99 @@ const Register = () => {
     }
   };
 
+  const handleFaceEnrollComplete = () => {
+    setFaceEnrollComplete(true);
+    setShowFaceEnroll(false);
+    setSuccess('Face enrollment complete! You can now sign in.');
+  };
+
+  if (showFaceEnroll && registeredEmployeeId) {
+    return (
+      <div className="register-container">
+        <FaceEnroll
+          employeeId={registeredEmployeeId}
+          name={formData.name}
+          onComplete={handleFaceEnrollComplete}
+        />
+      </div>
+    );
+  }
+
+
+  if (faceEnrollComplete) {
+    return (
+      <div className="register-container">
+        <div className="success-message">
+          <h2>Registration and Face Enrollment Complete!</h2>
+          <p>You can now log in with your credentials.</p>
+          <a href="/login" className="auth-footer">Go to Login</a>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="auth-container">
-      <div className="auth-card register-card">
-        <h2 className="auth-title">EMS</h2>
-        <h3 className="auth-subtitle">Register</h3>
-
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="name">Full Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="email">Email *</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div className="form-row">
+    <div className="register-container">
+      <h2>Register</h2>
+      {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">{success}</div>}
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="form-group">
+          <label>Name</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Confirm Password</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Role</label>
+          <select name="role" value={formData.role} onChange={handleChange}>
+            <option value="employee">Employee</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        {formData.role === 'employee' && (
+          <>
             <div className="form-group">
-              <label htmlFor="password">Password *</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password *</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm password"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="role">Role</label>
-              <select id="role" name="role" value={formData.role} onChange={handleChange}>
-                <option value="employee">Employee</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="department_id">Department</label>
+              <label>Department</label>
               <select
-                id="department_id"
                 name="department_id"
                 value={formData.department_id}
                 onChange={handleChange}
+                required
               >
                 <option value="">Select Department</option>
                 {departments.map((dept) => (
@@ -236,57 +251,44 @@ const Register = () => {
                 ))}
               </select>
             </div>
-          </div>
-
-          <div className="form-row">
             <div className="form-group">
-              <label htmlFor="designation_id">Designation</label>
+              <label>Designation</label>
               <select
-                id="designation_id"
                 name="designation_id"
                 value={formData.designation_id}
                 onChange={handleChange}
-                disabled={!formData.department_id}
+                required
               >
                 <option value="">Select Designation</option>
                 {designations.map((desig) => (
                   <option key={desig.id} value={desig.id}>
-                    {desig.title}
+                    {desig.name}
                   </option>
                 ))}
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="reporting_head_id">Reporting Head</label>
+              <label>Reporting Head</label>
               <select
-                id="reporting_head_id"
                 name="reporting_head_id"
                 value={formData.reporting_head_id}
                 onChange={handleChange}
-                disabled={employeesLoading}
+                required
               >
-                <option value="" disabled={employeesLoading}>
-                  {employeesLoading ? 'Loading...' : 'Select Reporting Head'}
-                </option>
+                <option value="">Select Reporting Head</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.name}
                   </option>
                 ))}
               </select>
-              {employeesError && <small className="error-message" style={{marginTop: 6}}>{employeesError}</small>}
             </div>
-          </div>
-
-          <button type="submit" className="auth-button register-button" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
-          </button>
-        </form>
-
-        <p className="auth-footer">
-          Already have an account? <a href="/login">Login here</a>
-        </p>
-      </div>
+          </>
+        )}
+        <button type="submit" disabled={loading} className="auth-button register-button">
+          {loading ? 'Registering...' : 'Register'}
+        </button>
+      </form>
     </div>
   );
 };

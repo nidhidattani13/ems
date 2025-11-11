@@ -177,20 +177,26 @@ const EmployeeAttendance = () => {
       setSuccess("");
       let recognizedName = null;
       let locationStr = null;
+      let photoDataUrl = null;
 
       // Do a quick face recognition verification before signing in
       try {
+        setSuccess("📸 Opening camera for face verification...");
         const rec = await faceService.recognizeUsingCamera();
+        photoDataUrl = rec?.photo || null;
+        
         if (!rec || !rec.matched) {
-          setError('Face not recognized. Please try again or enroll your face.');
+          setError('❌ Face not recognized. Please try again or enroll your face.');
           setSaving(false);
           return;
         }
+        setSuccess("✓ Face recognized! Fetching location...");
+        
         // If recognized, ensure the recognized name matches the logged-in user (basic safety)
         recognizedName = (rec.name || '').trim();
         const currentName = (user?.name || '').trim();
         if (recognizedName && currentName && recognizedName.toLowerCase() !== currentName.toLowerCase()) {
-          setError(`Face recognized as ${recognizedName}, which does not match the signed-in user.`);
+          setError(`❌ Face recognized as ${recognizedName}, which does not match the signed-in user.`);
           setSaving(false);
           return;
         }
@@ -214,13 +220,14 @@ const EmployeeAttendance = () => {
 
       } catch (e) {
         console.error('face verify error', e);
-        setError('Face verification failed. Please try again.');
+        setError('❌ Face verification failed. Please try again.');
         setSaving(false);
         return;
       }
 
-  // Pass location to attendance service so server can persist it
-  const res = await attendanceService.signIn(locationStr);
+      setSuccess("⏳ Signing in...");
+      // Pass location and photo to attendance service so server can persist it
+      const res = await attendanceService.signIn(locationStr, photoDataUrl);
 
       // Validate the response has the correct structure
       const rec = res?.id ? res : null;
@@ -240,7 +247,7 @@ const EmployeeAttendance = () => {
         // show enriched success message with name, time and location
         const nowStr = new Date().toLocaleString();
         const who = recognizedName || user?.name || 'You';
-        setSuccess(`Signed in as ${who} at ${nowStr} (${locationStr || 'Location unavailable'})`);
+        setSuccess(`✓ Signed in as ${who} at ${nowStr} (${locationStr || 'Location unavailable'})`);
       } else {
         // Fallback: refresh from server
         const refreshed = await refreshTodayWithRetry();
@@ -248,14 +255,14 @@ const EmployeeAttendance = () => {
         setItems(Array.isArray(list) ? list : []);
 
         if (refreshed?.sign_in_time) {
-          setSuccess("Signed in successfully - Auto sign-out at 6 PM");
+          setSuccess("✓ Signed in successfully - Auto sign-out at 6 PM");
         } else {
-          setError("Sign in may have failed. Please refresh.");
+          setError("⚠ Sign in may have failed. Please refresh.");
         }
       }
     } catch (e) {
       const msg = e?.response?.data?.message || "Failed to sign in";
-      setError(msg);
+      setError(`❌ ${msg}`);
       if (typeof msg === "string" && msg.toLowerCase().includes("leave")) {
         setOnLeaveToday(true);
       }
@@ -270,8 +277,9 @@ const EmployeeAttendance = () => {
       setError("");
       setSuccess("");
 
-      // Try to capture current location for sign-out as well (optional)
+      // Try to capture location and photo for sign-out
       let locationStr = null;
+      let photoDataUrl = null;
       try {
         const getPosition = () => new Promise((resolve) => {
           if (!navigator.geolocation) return resolve(null);
@@ -281,16 +289,24 @@ const EmployeeAttendance = () => {
             { enableHighAccuracy: true, timeout: 5000 }
           );
         });
+        
+        setSuccess("📸 Opening camera for sign-out verification...");
         const pos = await getPosition();
         if (pos && pos.coords) {
           const { latitude, longitude } = pos.coords;
           locationStr = `lat:${latitude.toFixed(6)}, lon:${longitude.toFixed(6)}`;
         }
+        
+        // Capture photo during sign-out
+        const rec = await faceService.recognizeUsingCamera();
+        photoDataUrl = rec?.photo || null;
+        setSuccess("✓ Photo captured! Signing out...");
       } catch (e) {
-        // ignore geo errors for sign-out
+        console.warn('sign-out photo/location capture error', e);
+        setSuccess("⏳ Signing out...");
       }
 
-      const res = await attendanceService.signOut(locationStr);
+      const res = await attendanceService.signOut(locationStr, photoDataUrl);
 
       // Validate the response has the correct structure
       const rec = res?.id ? res : null;
@@ -307,7 +323,7 @@ const EmployeeAttendance = () => {
           }
           return arr;
         });
-        setSuccess("Signed out successfully");
+        setSuccess("✓ Signed out successfully");
       } else {
         // Fallback: refresh from server
         const refreshed = await refreshTodayWithRetry();
@@ -315,13 +331,13 @@ const EmployeeAttendance = () => {
         setItems(Array.isArray(list) ? list : []);
 
         if (refreshed?.sign_out_time) {
-          setSuccess("Signed out successfully");
+          setSuccess("✓ Signed out successfully");
         } else {
-          setError("Sign out may have failed. Please refresh.");
+          setError("⚠ Sign out may have failed. Please refresh.");
         }
       }
     } catch (e) {
-      setError(e?.response?.data?.message || "Failed to sign out");
+      setError(`❌ ${e?.response?.data?.message || "Failed to sign out"}`);
     } finally {
       setSaving(false);
     }

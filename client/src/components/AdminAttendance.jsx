@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import React from "react";
 import { attendanceService } from "../services/attendanceService";
 import { employeeService } from "../services/employeeService";
+import "../styles/AdminAttendance.css";
 
 const workingDaysInMonth = (year, month /* 1-12 */) => {
   const m = month - 1;
@@ -23,6 +25,18 @@ const fmtTime = (iso) => {
   return `${hh}:${mm}`;
 };
 
+const fmtDateTime = (iso) => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  if (isNaN(d)) return "-";
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}/${mm}/${yy} ${hh}:${min}`;
+};
+
 const AdminAttendance = () => {
   const now = new Date();
   const [month, setMonth] = useState(String(now.getMonth() + 1).padStart(2, "0"));
@@ -33,6 +47,8 @@ const AdminAttendance = () => {
   const [empMap, setEmpMap] = useState({}); // id -> employee detail
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [expandedRows, setExpandedRows] = useState({}); // track expanded row details
+  const [selectedPhoto, setSelectedPhoto] = useState(null); // for photo modal
 
   const load = async (m, y) => {
     try {
@@ -147,6 +163,7 @@ const AdminAttendance = () => {
           <table className="dep-table">
             <thead>
               <tr>
+                <th style={{ width: "30px" }}></th>
                 <th style={{ width: "60px" }}>ID</th>
                 <th>Name</th>
                 <th>Department</th>
@@ -161,29 +178,105 @@ const AdminAttendance = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="center">Loading...</td>
+                  <td colSpan={10} className="center">Loading...</td>
                 </tr>
               ) : grouped.length ? (
                 paginated.map((g) => (
-                  <tr key={g.employee.id}>
-                    <td>{g.employee.id}</td>
-                    <td>{g.employee.name}</td>
-                    <td>{g.employee.department?.name || '-'}</td>
-                    <td>{g.employee.designation?.title || '-'}</td>
-                    <td>{fmtTime(g.latest?.sign_in_time)}</td>
-                    <td>{fmtTime(g.latest?.sign_out_time)}</td>
-                    <td>{g.presentDays}</td>
-                    <td>{g.workDays}</td>
-                    <td>
-                      <span className={`badge ${g.percentage >= 75 ? 'success' : g.percentage >= 50 ? 'warning' : 'danger'}`}>
-                        {g.percentage}%
-                      </span>
-                    </td>
-                  </tr>
+                  <React.Fragment key={g.employee.id}>
+                    <tr className="attendance-row">
+                      <td className="expand-btn">
+                        <button
+                          className="expand-icon"
+                          onClick={() =>
+                            setExpandedRows((prev) => ({
+                              ...prev,
+                              [g.employee.id]: !prev[g.employee.id],
+                            }))
+                          }
+                        >
+                          {expandedRows[g.employee.id] ? "▼" : "▶"}
+                        </button>
+                      </td>
+                      <td>{g.employee.id}</td>
+                      <td>{g.employee.name}</td>
+                      <td>{g.employee.department?.name || '-'}</td>
+                      <td>{g.employee.designation?.title || '-'}</td>
+                      <td>{fmtTime(g.latest?.sign_in_time)}</td>
+                      <td>{fmtTime(g.latest?.sign_out_time)}</td>
+                      <td>{g.presentDays}</td>
+                      <td>{g.workDays}</td>
+                      <td>
+                        <span className={`badge ${g.percentage >= 75 ? 'success' : g.percentage >= 50 ? 'warning' : 'danger'}`}>
+                          {g.percentage}%
+                        </span>
+                      </td>
+                    </tr>
+                    {expandedRows[g.employee.id] && (
+                      <tr className="details-row">
+                        <td colSpan={10}>
+                          <div className="attendance-details">
+                            <div className="detail-section sign-in-section">
+                              <h4>🔵 Sign In</h4>
+                              <div className="detail-content">
+                                <div className="detail-item">
+                                  <span className="label">Time:</span>
+                                  <span className="value">{fmtDateTime(g.latest?.sign_in_time)}</span>
+                                </div>
+                                <div className="detail-item">
+                                  <span className="label">Location:</span>
+                                  <span className="value" title={g.latest?.location || 'N/A'}>
+                                    {g.latest?.location ? String(g.latest.location).substring(0, 50) + (String(g.latest.location).length > 50 ? '...' : '') : 'N/A'}
+                                  </span>
+                                </div>
+                                {g.latest?.sign_in_photo && (
+                                  <div className="detail-item">
+                                    <span className="label">Photo:</span>
+                                    <button
+                                      className="photo-btn"
+                                      onClick={() => setSelectedPhoto(g.latest.sign_in_photo)}
+                                    >
+                                      📷 View Photo
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="detail-section sign-out-section">
+                              <h4>🟢 Sign Out</h4>
+                              <div className="detail-content">
+                                <div className="detail-item">
+                                  <span className="label">Time:</span>
+                                  <span className="value">{fmtDateTime(g.latest?.sign_out_time)}</span>
+                                </div>
+                                <div className="detail-item">
+                                  <span className="label">Location:</span>
+                                  <span className="value" title={g.latest?.location || 'N/A'}>
+                                    {g.latest?.location ? String(g.latest.location).substring(0, 50) + (String(g.latest.location).length > 50 ? '...' : '') : 'N/A'}
+                                  </span>
+                                </div>
+                                {g.latest?.sign_out_photo && (
+                                  <div className="detail-item">
+                                    <span className="label">Photo:</span>
+                                    <button
+                                      className="photo-btn"
+                                      onClick={() => setSelectedPhoto(g.latest.sign_out_photo)}
+                                    >
+                                      📷 View Photo
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="center">No data</td>
+                  <td colSpan={10} className="center">No data</td>
                 </tr>
               )}
             </tbody>
@@ -205,6 +298,16 @@ const AdminAttendance = () => {
           </div>
         </div>
       </div>
+
+      {/* Photo Modal */}
+      {selectedPhoto && (
+        <div className="photo-modal" onClick={() => setSelectedPhoto(null)}>
+          <div className="photo-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="photo-modal-close" onClick={() => setSelectedPhoto(null)}>✕</button>
+            <img src={selectedPhoto} alt="Attendance Photo" className="photo-modal-img" />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

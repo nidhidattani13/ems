@@ -11,7 +11,8 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
-.auth-container {
+.auth-container,
+.register-container {
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -22,7 +23,8 @@ body {
   overflow: visible;
 }
 
-.auth-container::before {
+.auth-container::before,
+.register-container::before {
   content: '';
   position: absolute;
   top: 0;
@@ -32,7 +34,8 @@ body {
   background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
 }
 
-.auth-card {
+.auth-card,
+.register-container h2 {
   background: white;
   padding: 48px;
   border-radius: 20px;
@@ -43,6 +46,37 @@ body {
   position: relative;
   z-index: 1;
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.register-container {
+  flex-direction: column;
+}
+
+.register-container form {
+  background: white;
+  padding: 48px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 450px;
+  animation: slideIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.register-container h2 {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  text-align: center;
+  color: #1a202c;
+  margin-bottom: 32px;
+  font-size: 32px;
+  font-weight: 700;
+  max-width: 450px;
+  padding-bottom: 0;
 }
 
 .register-card {
@@ -214,14 +248,53 @@ body {
   border-left: 4px solid #68d391;
   font-size: 14px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .success-message::before {
   content: 'check_circle';
   font-family: 'Material Icons';
   font-size: 18px;
+}
+
+.success-message h2 {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  text-align: left;
+  color: #2d784d;
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  width: 100%;
+}
+
+.success-message p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.success-message a {
+  background: #68d391;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  margin-top: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.success-message a:hover {
+  background: #48a868;
+  transform: translateY(-2px);
+}
+
+.success-message a::after {
+  display: none;
 }
 
 .auth-footer {
@@ -272,4 +345,172 @@ body {
     font-size: 28px;
     margin-bottom: 24px;
   }
+}
+
+/* Face Enrollment Styling */
+.face-enroll {
+  background: white;
+  padding: 48px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 450px;
+  animation: slideIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+}
+
+.face-enroll h3 {
+  color: #1a202c;
+  margin-bottom: 12px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.face-enroll p {
+  color: #718096;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.face-enroll video {
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  margin: 24px 0;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.face-enroll button {
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.face-enroll button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(66, 153, 225, 0.4);
+}
+
+.face-enroll button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.face-enroll div[style*="backgroundColor: #e8f5e9"] {
+  margin-top: 16px !important;
+  padding: 14px !important;
+  background-color: #c6f6d5 !important;
+  color: #2d784d !important;
+  border-radius: 10px !important;
+  border-left: 4px solid #68d391 !important;
+  font-size: 14px !important;
+}
+
+.face-enroll div[style*="backgroundColor: #ffebee"] {
+  margin-top: 16px !important;
+  padding: 14px !important;
+  background-color: #fed7d7 !important;
+  color: #c53030 !important;
+  border-radius: 10px !important;
+  border-left: 4px solid #fc8181 !important;
+  font-size: 14px !important;
+}
+
+.face-enroll > div:last-child {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f7fafc;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 13px;
+  color: #4a5568;
+}
+
+.face-enroll > div:last-child strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.face-enroll > div:last-child ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.face-enroll > div:last-child li {
+  margin: 6px 0;
+}
+
+.face-enroll div:first-of-type {
+  color: #718096;
+  font-size: 16px;
+  padding: 20px;
+}
+
+/* Face Enrollment Progress */
+.face-enroll-progress {
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border-radius: 12px;
+  border: 2px solid #667eea30;
+}
+
+.progress-counter {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.progress-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #667eea;
+  line-height: 1;
+  margin-right: 8px;
+}
+
+.progress-label {
+  font-size: 16px;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.face-enroll-loading {
+  color: #718096;
+  font-size: 16px;
+  padding: 20px;
+  text-align: center;
 }

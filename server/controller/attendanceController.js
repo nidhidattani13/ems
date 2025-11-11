@@ -50,7 +50,7 @@ const attendanceController = {
 
   signInToday: async (req, res) => {
     try {
-      const { location } = req.body || {};
+      const { location, photo } = req.body || {};
       const userId = req.user?.id;
       if (!userId) return res.status(401).json({ status: false, message: 'Unauthorized' });
 
@@ -84,6 +84,7 @@ const attendanceController = {
           sign_in_time: now,
           status: true,
           location: location || null,
+          sign_in_photo: photo || null,
         };
         if (!isNaN(workEnd) && now >= workEnd) {
           createPayload.sign_out_time = workEnd;
@@ -103,10 +104,11 @@ const attendanceController = {
         return res.status(200).json({ status: true, message: 'Already signed in', data: fresh });
       }
 
-  // Update sign-in time and optionally update location if provided
-  const updatePayload = { sign_in_time: now, status: true };
-  if (location) updatePayload.location = location;
-  await record.update(updatePayload);
+      // Update sign-in time and optionally update location/photo if provided
+      const updatePayload = { sign_in_time: now, status: true };
+      if (location) updatePayload.location = location;
+      if (photo) updatePayload.sign_in_photo = photo;
+      await record.update(updatePayload);
       // If signing in after 18:00, also set sign_out_time to 18:00
       const workEnd = new Date(`${todayStr}T18:00:00`);
       if (!record.sign_out_time && !isNaN(workEnd) && now >= workEnd) {
@@ -121,7 +123,7 @@ const attendanceController = {
 
   signOutToday: async (req, res) => {
     try {
-      const { location } = req.body || {};
+      const { location, photo } = req.body || {};
       const userId = req.user?.id;
       if (!userId) return res.status(401).json({ status: false, message: 'Unauthorized' });
 
@@ -144,10 +146,11 @@ const attendanceController = {
       // Cap sign-out time to 18:00 local for fixed schedule
       const workEnd = new Date(`${todayStr}T18:00:00`);
       const signOutAt = (!isNaN(workEnd) && now >= workEnd) ? workEnd : now;
-  // Update sign-out time and optionally record/override location if provided
-  const updatePayload = { sign_out_time: signOutAt };
-  if (location) updatePayload.location = location;
-  await record.update(updatePayload);
+      // Update sign-out time and optionally record location and photo if provided
+      const updatePayload = { sign_out_time: signOutAt };
+      if (location) updatePayload.location = location;
+      if (photo) updatePayload.sign_out_photo = photo;
+      await record.update(updatePayload);
       const fresh = await Attendance.findByPk(record.id);
       return res.status(200).json({ status: true, message: 'Signed out', data: fresh });
     } catch (err) {

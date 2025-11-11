@@ -1,16 +1,20 @@
 import api from './api';
 
 export const attendanceService = {
-  signIn: async (location) => {
-    // location: optional string with coords or description
-    const payload = location ? { location } : {};
+  signIn: async (location, photo) => {
+    // location and photo: optional
+    const payload = {};
+    if (location) payload.location = location;
+    if (photo) payload.photo = photo;
     const res = await api.post('/attendance/sign-in', payload);
-    return res.data?.data || null;  // Return null instead of res.data
+    return res.data?.data || null;
   },
-  signOut: async (location) => {
-    const payload = location ? { location } : {};
+  signOut: async (location, photo) => {
+    const payload = {};
+    if (location) payload.location = location;
+    if (photo) payload.photo = photo;
     const res = await api.post('/attendance/sign-out', payload);
-    return res.data?.data || null;  // Return null instead of res.data
+    return res.data?.data || null;
   },
   // Fix others too
   listMine: async () => {

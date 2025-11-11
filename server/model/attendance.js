@@ -30,6 +30,14 @@ const Attendance = sequelize.define("Attendance", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  sign_in_photo: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true,
+  },
+  sign_out_photo: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true,
+  },
   sign_out_time: {
     type: DataTypes.DATE,
     allowNull: true,

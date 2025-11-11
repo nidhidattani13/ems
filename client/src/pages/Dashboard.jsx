@@ -12,7 +12,6 @@ import TeamLeaveRequests from "../components/TeamLeaveRequests";
 import EmployeeAttendance from "../components/EmployeeAttendance";
 import AdminAttendance from "../components/AdminAttendance";
 import EmployeeProfile from "../components/EmployeeProfile";
-import FaceEnroll from "../components/FaceEnroll";
 import { Home, Building2, Users, CalendarCheck, ClipboardList, FilePlus, FileText, Briefcase, Layers, LogOut as LogOutIcon, Settings, CheckCircle, Clock, Shield, TrendingUp, Award, Activity, Menu, X, Bell, Search, Filter, Download, Plus, BarChart3, PieChart } from "lucide-react";
 import { employeesService } from "../services/employeesService";
 import { departmentsService } from "../services/departmentsService";
@@ -318,9 +317,9 @@ const Dashboard = () => {
                   <div className="pro-mini"><span className="pro-li-title">Sign In</span><span className="pro-li-sub">{myToday?.sign_in_time || '—'}</span></div>
                   <div className="pro-mini"><span className="pro-li-title">Sign Out</span><span className="pro-li-sub">{myToday?.sign_out_time || '—'}</span></div>
                 </div>
-                <div style={{ marginTop: 12 }}>
+                {/* <div style={{ marginTop: 12 }}>
                   <FaceEnroll employeeId={user?.id} name={user?.name} />
-                </div>
+                </div> */}
               </div>
             </div>
             )}
