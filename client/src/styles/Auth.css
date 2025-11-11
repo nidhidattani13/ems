@@ -34,14 +34,27 @@ body {
   background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
 }
 
-.auth-card,
-.register-container h2 {
+.auth-card {
   background: white;
   padding: 48px;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 450px;
+  max-width: 450px; /* restored compact width for login */
+  animation: slideIn 0.4s ease-out;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.register-container h2 {
+  /* keep the h2 styling separate for register pages if needed */
+  background: white;
+  padding: 48px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 900px;
   animation: slideIn 0.4s ease-out;
   position: relative;
   z-index: 1;
@@ -54,29 +67,16 @@ body {
 
 .register-container form {
   background: white;
-  padding: 48px;
+  padding: 36px;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 450px;
+  /* wider so two-column layout fits */
+  max-width: 900px;
   animation: slideIn 0.4s ease-out;
   position: relative;
   z-index: 1;
   border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.register-container h2 {
-  background: transparent;
-  padding: 0;
-  box-shadow: none;
-  border: none;
-  text-align: center;
-  color: #1a202c;
-  margin-bottom: 32px;
-  font-size: 32px;
-  font-weight: 700;
-  max-width: 450px;
-  padding-bottom: 0;
 }
 
 .register-card {
@@ -126,6 +126,23 @@ body {
   gap: 24px;
 }
 
+.form-heading {
+  text-align: center;
+  color: #1a202c;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  padding: 6px 0 4px 0;
+}
+
+/* Ensure the heading doesn't get the large white card styling inherited from .register-container h2 */
+.auth-form .form-heading {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 6px 0 4px 0 !important;
+  margin-bottom: 4px !important;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -134,8 +151,41 @@ body {
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+}
+
+.form-row.single-row {
+  grid-template-columns: 1fr;
+}
+
+/* Center button in its row */
+.form-row.button-row {
+  /* Use flex for robust centering across browsers */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+}
+.form-row.button-row .form-group {
+  display: block;
+  width: auto;
+}
+
+/* Make the register button narrower */
+.auth-button.register-button {
+  max-width: 220px;
+  width: auto;
+  display: inline-flex;
+  padding: 12px 18px;
+  text-align: center;
+}
+
+/* On larger screens keep the button compact instead of full width */
+@media (min-width: 641px) {
+  .form-row.button-row .form-group .auth-button.register-button {
+    width: auto;
+  }
 }
 
 .form-group label {
@@ -163,6 +213,7 @@ body {
   outline: none;
   font-family: 'Inter', sans-serif;
   background: #f8fafc;
+  color: #000; /* ensure visible input text */
 }
 
 .form-group input:focus,
@@ -178,6 +229,15 @@ body {
   background-color: #f7fafc;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+/* Ensure select dropdown text is black where supported */
+.form-group select,
+.form-group select option {
+  color: #000;
+}
+.form-group select:focus {
+  color: #000;
 }
 
 .auth-button {

@@ -117,6 +117,7 @@ const attendanceController = {
       const fresh = await Attendance.findByPk(record.id);
       return res.status(200).json({ status: true, message: 'Signed in', data: fresh });
     } catch (err) {
+      console.error('signInToday error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -154,6 +155,7 @@ const attendanceController = {
       const fresh = await Attendance.findByPk(record.id);
       return res.status(200).json({ status: true, message: 'Signed out', data: fresh });
     } catch (err) {
+      console.error('signOutToday error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -195,6 +197,7 @@ const attendanceController = {
         data: records,
       });
     } catch (err) {
+      console.error('getAllAttendance error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -221,6 +224,7 @@ const attendanceController = {
         data: record,
       });
     } catch (err) {
+      console.error('getAttendanceById error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -256,6 +260,7 @@ const attendanceController = {
         data: record,
       });
     } catch (err) {
+      console.error('updateAttendance error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -279,6 +284,7 @@ const attendanceController = {
         message: "Attendance deleted successfully",
       });
     } catch (err) {
+      console.error('deleteAttendance error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -295,6 +301,7 @@ const attendanceController = {
       });
       res.status(200).json({ status: true, message: 'My attendance fetched', data: records });
     } catch (err) {
+      console.error('getMyAttendance error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -319,6 +326,7 @@ const attendanceController = {
       }
       res.status(200).json({ status: true, message: 'Today fetched', data: record });
     } catch (err) {
+      console.error('getMyToday error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },
@@ -350,6 +358,7 @@ const attendanceController = {
       });
       return res.status(201).json({ status: true, message: 'Attendance marked', data: record });
     } catch (err) {
+      console.error('markToday error', err && err.stack ? err.stack : err);
       res.status(500).json({ status: false, message: err.message });
     }
   },

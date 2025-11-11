@@ -16,7 +16,9 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// increase body size limits so base64 photos / large payloads don't trigger 413
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use('/api/departments',departmentRoutes);
 app.use('/api/designations',designationRoutes);
@@ -29,11 +31,19 @@ app.use('/api/auth',authRoutes);
 app.use('/api/face', faceRoutes);
 
 
-sequelize.sync()
-    .then(() => console.log('Database synchronized.'))
+// Sync DB and apply non-destructive schema changes (adds missing columns/tables)
+sequelize.sync({ alter: true })
+    .then(() => console.log('Database synchronized (alter applied).'))
     .catch(err => console.error('Sync error:', err));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+});
+
+// global error handler to log unexpected errors
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err && err.stack ? err.stack : err);
+    if (res.headersSent) return next(err);
+    res.status(500).json({ status: false, message: err?.message || 'Internal Server Error' });
 });

@@ -81,10 +81,12 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+      // if department changed, clear designation selection
+      ...(name === 'department_id' ? { designation_id: '' } : {}),
+    }));
     // Don't immediately clear error/success to avoid flicker
   };
 
@@ -182,59 +184,68 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <h2>Register</h2>
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
       <form onSubmit={handleSubmit} className="auth-form">
-        <div className="form-group">
-          <label>Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
+        <h2 className="form-heading">Register</h2>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Role</label>
-          <select name="role" value={formData.role} onChange={handleChange}>
-            <option value="employee">Employee</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        {formData.role === 'employee' && (
-          <>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Role</label>
+            <select name="role" value={formData.role} onChange={handleChange}>
+              <option value="employee">Employee</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          {formData.role === 'employee' ? (
             <div className="form-group">
               <label>Department</label>
               <select
@@ -251,43 +262,81 @@ const Register = () => {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label>Designation</label>
-              <select
-                name="designation_id"
-                value={formData.designation_id}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Designation</option>
-                {designations.map((desig) => (
-                  <option key={desig.id} value={desig.id}>
-                    {desig.name}
-                  </option>
-                ))}
-              </select>
+          ) : (
+            <div className="form-group" />
+          )}
+        </div>
+
+        {formData.role === 'employee' && (
+          formData.department_id ? (
+            <div className="form-row">
+              <div className="form-group">
+                <label>Designation</label>
+                <select
+                  name="designation_id"
+                  value={formData.designation_id}
+                  onChange={handleChange}
+                  required={designations.length > 0}
+                >
+                  <option value="">Select Designation</option>
+                  {designations.length === 0 ? (
+                    <option value="" disabled>No designations</option>
+                  ) : (
+                    designations.map((desig) => (
+                      <option key={desig.id} value={desig.id}>
+                        {desig.title || desig.name || desig.label || ''}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Reporting Head</label>
+                <select
+                  name="reporting_head_id"
+                  value={formData.reporting_head_id}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Reporting Head</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div className="form-group">
-              <label>Reporting Head</label>
-              <select
-                name="reporting_head_id"
-                value={formData.reporting_head_id}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Reporting Head</option>
-                {employees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.name}
-                  </option>
-                ))}
-              </select>
+          ) : (
+            <div className="form-row single-row">
+              <div className="form-group">
+                <label>Reporting Head</label>
+                <select
+                  name="reporting_head_id"
+                  value={formData.reporting_head_id}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Reporting Head</option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </>
+          )
         )}
-        <button type="submit" disabled={loading} className="auth-button register-button">
-          {loading ? 'Registering...' : 'Register'}
-        </button>
+
+        <div className="form-row button-row">
+          <div className="form-group">
+            <button type="submit" disabled={loading} className="auth-button register-button">
+              {loading ? 'Registering...' : 'Register'}
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   );
