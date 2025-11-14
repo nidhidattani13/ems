@@ -22,17 +22,13 @@ const EmployeeProfile = () => {
     try {
       setLoading(true);
       setError('');
-      const [emp, td] = await Promise.all([
-        user?.id ? employeesService.get(user.id) : Promise.resolve(null),
-        attendanceService.getToday().catch(() => null),
-      ]);
+      const emp = await (user?.id ? employeesService.get(user.id) : Promise.resolve(null));
       if (emp) {
         setEmpData(emp);
         setForm({ name: emp.name || '', email: emp.email || '', password: '' });
         const statusLabel = (emp.status === true || String(emp.status) === 'Active') ? 'Active' : 'Inactive';
         setMeta({ department: emp.department, designation: emp.designation, status: statusLabel });
       }
-      setToday(td);
     } catch (e) {
       setError(e?.response?.data?.message || 'Failed to load profile');
     } finally {
@@ -88,12 +84,6 @@ const EmployeeProfile = () => {
               <span className="badge muted">{meta.designation?.title || 'No Designation'}</span>
             </div>
           </div>
-            <div className="pro-card">
-              <div className="pro-card-head"><h3>Documents</h3></div>
-              <div style={{ padding: 12 }}>
-                <DocumentsManager employeeId={user?.id} initialDocs={(empData && empData.documents) || []} />
-              </div>
-            </div>
         </div>
       </div>
 
@@ -123,11 +113,9 @@ const EmployeeProfile = () => {
           </form>
         </div>
         <div className="pro-card">
-          <div className="pro-card-head"><h3>Today</h3></div>
-          <div className="pro-list">
-            <div className="pro-mini"><span className="pro-li-title">Date</span><span className="pro-li-sub">{today?.date || '—'}</span></div>
-            <div className="pro-mini"><span className="pro-li-title">Sign In</span><span className="pro-li-sub">{today?.sign_in_time || '—'}</span></div>
-            <div className="pro-mini"><span className="pro-li-title">Sign Out</span><span className="pro-li-sub">{today?.sign_out_time || '—'}</span></div>
+          <div className="pro-card-head"><h3>Documents</h3></div>
+          <div style={{ padding: 12 }}>
+            <DocumentsManager employeeId={user?.id} initialDocs={(empData && empData.documents) || []} />
           </div>
         </div>
       </div>
