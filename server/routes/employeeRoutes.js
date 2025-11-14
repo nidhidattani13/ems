@@ -13,6 +13,11 @@ router.put("/me", verifyToken, employeeController.updateSelf);
 router.post("/", verifyToken, isAdmin, employeeController.createEmployee);
 router.get("/", verifyToken, isAdmin, employeeController.getAllEmployees);
 router.get("/:id", verifyToken, employeeController.getEmployeeById);
+// Documents upload/delete (owner or admin)
+router.post("/:id/documents", verifyToken, employeeController.uploadDocument);
+router.delete("/:id/documents/:docId", verifyToken, employeeController.deleteDocument);
+router.get("/:id/documents/:docId", verifyToken, employeeController.serveDocument);
+router.put("/:id/documents/:docId", verifyToken, employeeController.updateDocument);
 router.put("/:id", verifyToken, isAdmin, employeeController.updateEmployee);
 router.delete("/:id", verifyToken, isAdmin, employeeController.deleteEmployee);
 

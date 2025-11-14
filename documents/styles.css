@@ -1,0 +1,16 @@
+.tmpl-docs-root{display:flex;gap:24px;align-items:flex-start}
+.tmpl-docs-form{min-width:320px;background:#fff;padding:12px;border-radius:8px;border:1px solid #eee}
+.tmpl-label{display:block;margin-bottom:6px;font-weight:600;color:#374151}
+.tmpl-select,.tmpl-file-input{width:100%;padding:8px;border-radius:6px;border:1px solid #e5e7eb;background:#fff}
+.tmpl-preview{margin-top:8px}
+.tmpl-preview-note{font-size:12px;color:#6b7280}
+.tmpl-error{color:#b91c1c;margin-top:8px}
+.tmpl-btn-primary{background:linear-gradient(135deg,#ec4899 0%,#9333ea 100%);color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+.tmpl-btn-secondary{background:#f3f4f6;color:#374151;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+.tmpl-docs-list{flex:1;background:#fff;padding:12px;border-radius:8px;border:1px solid #eee}
+.tmpl-docs-ul{list-style:none;padding:0;margin:0}
+.tmpl-doc-item{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #f3f4f6}
+.tmpl-doc-type{font-weight:600}
+.tmpl-link{margin-right:8px;color:#1f2937}
+.tmpl-btn-delete{background:#fff1f2;color:#b91c1c;border:1px solid #fee2e2;padding:6px 8px;border-radius:6px;cursor:pointer}
+.tmpl-empty{color:#6b7280;padding:8px}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { employeesService } from '../services/employeesService';
 import { departmentsService } from '../services/departmentsService';
 import { designationsService } from '../services/designationsService';
+import DocumentsManager from './DocumentsManager';
 
 const initialForm = {
   name: '',
@@ -26,6 +27,7 @@ const EmployeesManager = () => {
   const [form, setForm] = useState(initialForm);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [empDetails, setEmpDetails] = useState(null);
   const [query, setQuery] = useState('');
   const [deptFilter, setDeptFilter] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -183,6 +185,13 @@ const EmployeesManager = () => {
     // Prefetch designations for the employee's department so dropdown is populated
     await fetchDesignationsFor(row.department_id);
     prevDeptRef.current = row.department_id || '';
+    // fetch fresh employee details (including documents) for admin view
+    try {
+      const full = await employeesService.get(row.id);
+      setEmpDetails(full);
+    } catch (e) {
+      setEmpDetails(null);
+    }
     setModalOpen(true);
   };
 
@@ -293,6 +302,14 @@ const EmployeesManager = () => {
                     <option value="Inactive">Inactive</option>
                   </select>
                 </div>
+              </div>
+              <div style={{ display: 'grid', gap: 12 }}>
+                {editingId && (
+                  <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #eee' }}>
+                    <h4 style={{ marginTop: 0 }}>Documents</h4>
+                    <DocumentsManager employeeId={editingId} initialDocs={(empDetails && empDetails.documents) || []} />
+                  </div>
+                )}
               </div>
               <div className="modal-actions">
                 <button type="submit" className="btn primary" disabled={saving}>{saving ? 'Saving...' : (editingId ? 'Update' : 'Create')}</button>

@@ -16,7 +16,15 @@ const sequelize = new Sequelize(
 (async () => {
     try {
         await sequelize.authenticate();
-        console.log('Database connection established successfully...');
+    console.log('Database connection established successfully...');
+    // Try to increase session max_allowed_packet if permitted (helps large base64 payloads)
+    try {
+      // attempt to set session-level value (may require privileges)
+      await sequelize.query("SET SESSION max_allowed_packet = 67108864;");
+      console.log('Session max_allowed_packet set to 64MB');
+    } catch (e) {
+      console.warn('Could not set session max_allowed_packet automatically. If you see "Got a packet bigger than", increase MySQL max_allowed_packet in my.cnf or via MySQL admin.');
+    }
     } catch (error) {
         console.error('Unable to connect to the database:', error);
     }
