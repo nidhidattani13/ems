@@ -15,10 +15,23 @@ const faceRoutes = require('./routes/faceRoutes');
 dotenv.config();
 const app = express();
 
+// capture unhandled errors so we can see why process exits
+process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION:', err && err.stack ? err.stack : err);
+});
+process.on('unhandledRejection', (reason, p) => {
+    console.error('UNHANDLED REJECTION:', reason);
+});
+
+process.on('exit', (code) => {
+    console.log('PROCESS EXIT event, code =', code);
+});
+
 app.use(cors());
 // increase body size limits so base64 photos / large payloads don't trigger 413
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Set to 50mb to allow larger base64 uploads; adjust as needed.
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use('/api/departments',departmentRoutes);
 app.use('/api/designations',designationRoutes);

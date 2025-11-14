@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { employeesService } from '../services/employeesService';
 import { attendanceService } from '../services/attendanceService';
 import { useAuth } from '../context/AuthContext';
+import DocumentsManager from './DocumentsManager';
 
 const initial = { name: '', email: '', password: '' };
 
@@ -13,6 +14,7 @@ const EmployeeProfile = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [meta, setMeta] = useState({ department: null, designation: null, status: '' });
+  const [empData, setEmpData] = useState(null);
   const [today, setToday] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -25,6 +27,7 @@ const EmployeeProfile = () => {
         attendanceService.getToday().catch(() => null),
       ]);
       if (emp) {
+        setEmpData(emp);
         setForm({ name: emp.name || '', email: emp.email || '', password: '' });
         const statusLabel = (emp.status === true || String(emp.status) === 'Active') ? 'Active' : 'Inactive';
         setMeta({ department: emp.department, designation: emp.designation, status: statusLabel });
@@ -85,6 +88,12 @@ const EmployeeProfile = () => {
               <span className="badge muted">{meta.designation?.title || 'No Designation'}</span>
             </div>
           </div>
+            <div className="pro-card">
+              <div className="pro-card-head"><h3>Documents</h3></div>
+              <div style={{ padding: 12 }}>
+                <DocumentsManager employeeId={user?.id} initialDocs={(empData && empData.documents) || []} />
+              </div>
+            </div>
         </div>
       </div>
 

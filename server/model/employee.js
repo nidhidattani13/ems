@@ -48,4 +48,6 @@ Employee.belongsTo(Employee, {
   as: "reporting_head",
 });
 
+// Document model is defined separately and associated in document.js
+
 module.exports = Employee;
